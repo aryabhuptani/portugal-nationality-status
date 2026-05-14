@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portugal Nationality Application — Status</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f2ec;
+      --panel: #ffffff;
+      --panel-soft: #faf7f1;
+      --text: #1c1b18;
+      --muted: #6a6359;
+      --line: #e3ddd2;
+      --line-strong: #c9c0b1;
+      --complete: #15735c;
+      --complete-soft: #e6f1ec;
+      --progress: #1f5fb0;
+      --progress-soft: #e6eef8;
+      --pending: #a85a06;
+      --pending-soft: #fbeed8;
+      --context: #5b5650;
+      --context-soft: #ece8e0;
+      --accent: #1c1b18;
+      --shadow: 0 1px 2px rgba(28, 27, 24, 0.04), 0 8px 24px rgba(28, 27, 24, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 0 18px; }
+    header {
+      padding: 32px 0 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 8px;
+      font-weight: 600;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+      font-weight: 600;
+      font-size: clamp(28px, 6.5vw, 40px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    main { padding: 22px 0 56px; }
+    .summary {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+    .summary h2 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .summary p { margin: 0; font-size: 16px; line-height: 1.55; }
+
+    .stepper {
+      margin: 0 0 32px;
+    }
+    .stepper-title {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      counter-reset: step;
+    }
+    .step {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 12px 12px;
+      box-shadow: var(--shadow);
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+    }
+    .step .bar {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--line);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .step .fill { display: block; height: 100%; border-radius: 999px; }
+    .step .label {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .step .meta { font-size: 12px; color: var(--muted); line-height: 1.35; }
+    .step.s-done { border-color: var(--complete); }
+    .step.s-done .fill { background: var(--complete); width: 100%; }
+    .step.s-done::before { color: var(--complete); border-color: var(--complete); background: var(--complete-soft); }
+    .step.s-active { border-color: var(--progress); }
+    .step.s-active .fill { background: var(--progress); }
+    .step.s-active::before { color: var(--progress); border-color: var(--progress); background: var(--progress-soft); }
+    .step.s-later { }
+    .step.s-later .fill { background: var(--line-strong); width: 25%; }
+
+    .stage {
+      margin-top: 28px;
+    }
+    .stage-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 0 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .stage-num {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .stage-title {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.005em;
+    }
+    .stage-progress {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .item {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 12px;
+      row-gap: 6px;
+    }
+    .item-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.3;
+    }
+    .item-detail {
+      grid-column: 1 / -1;
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .item-next {
+      grid-column: 1 / -1;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin: 0;
+    }
+    .item-next b {
+      display: inline;
+      font-weight: 600;
+      color: var(--muted);
+      margin-right: 4px;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+    .tag {
+      align-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .tag .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+      display: inline-block;
+    }
+    .tag.t-complete { color: var(--complete); background: var(--complete-soft); border-color: rgba(21, 115, 92, 0.18); }
+    .tag.t-progress { color: var(--progress); background: var(--progress-soft); border-color: rgba(31, 95, 176, 0.18); }
+    .tag.t-pending  { color: var(--pending); background: var(--pending-soft); border-color: rgba(168, 90, 6, 0.18); }
+    .tag.t-context  { color: var(--context); background: var(--context-soft); border-color: rgba(91, 86, 80, 0.18); }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 24px 0 0;
+      padding: 12px 14px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .legend .li { display: inline-flex; align-items: center; gap: 6px; }
+    .legend .sw { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+    .footer-note {
+      margin-top: 22px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 0 14px; }
+      header { padding: 22px 0 16px; }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .item { grid-template-columns: 1fr; }
+      .tag { justify-self: start; }
+      .stage-progress { display: none; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .step, .item, .summary { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">Portugal Nationality Application</p>
+      <h1>Application Status</h1>
+      <p class="updated">Updated 14 May 2026</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <section class="summary" aria-label="Current status summary">
+        <h2>Current status</h2>
+        <p>Application submitted and payment completed. Most core filing materials are in. Active follow-up is the FBI background check / federal apostille and the birth certificate translation.</p>
+      </section>
+
+      <section class="stepper" aria-label="Application stages">
+        <p class="stepper-title">Application stages</p>
+        <ol class="steps" role="list">
+          <li class="step s-active" aria-label="Stage 1: Document preparation, in progress">
+            <span class="bar"><span class="fill" style="width: 88%"></span></span>
+            <div class="label">Document preparation</div>
+            <div class="meta">7 of 8 in hand</div>
+          </li>
+          <li class="step s-done" aria-label="Stage 2: Legal submission and payment, complete">
+            <span class="bar"><span class="fill"></span></span>
+            <div class="label">Submission &amp; payment</div>
+            <div class="meta">Filed and paid</div>
+          </li>
+          <li class="step s-active" aria-label="Stage 3: Criminal record and apostille follow-up, in progress">
+            <span class="bar"><span class="fill" style="width: 50%"></span></span>
+            <div class="label">Criminal record &amp; apostille</div>
+            <div class="meta">FBI / apostille active</div>
+          </li>
+          <li class="step s-later" aria-label="Stage 4: Later follow-up and monitoring">
+            <span class="bar"><span class="fill"></span></span>
+            <div class="label">Follow-up &amp; monitoring</div>
+            <div class="meta">Awaiting review</div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="stage" aria-labelledby="stage-1">
+        <div class="stage-head">
+          <span class="stage-num">Stage 1</span>
+          <h3 class="stage-title" id="stage-1">Document preparation</h3>
+          <span class="stage-progress">7 complete &middot; 1 in progress &middot; 1 pending</span>
+        </div>
+        <div class="items">
+
+          <article class="item">
+            <h4 class="item-title">Signed power of attorney</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Andreia requested signature; signed POA was returned and is on file.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Passport copy</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Passport scan sent to Andreia (and resent on request).</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Portuguese residence card</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Current residence card / title shared with Andreia.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Current address in Portugal</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Lisbon address provided to Andreia.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Professional activity statement</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Written statement confirming Arya is a business owner / professional has been provided.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Law firm KYC / onboarding</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">KYC form and supporting documents completed with the firm on 11 Feb 2026.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Portuguese language evidence</h4>
+            <span class="tag t-progress"><span class="dot"></span>In progress</span>
+            <p class="item-detail">EdPro has confirmed enrollment in the A1/A2 PLA course and the declaration has been forwarded to Andreia. The final A2 / PLA certificate will follow once the course completes.</p>
+            <p class="item-next"><b>Next</b>Track final A2 / PLA certificate when issued.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Birth certificate &mdash; Portuguese translation</h4>
+            <span class="tag t-pending"><span class="dot"></span>Pending</span>
+            <p class="item-detail">Birth certificate and attested copy were sent to Andreia. The remaining piece is the Portuguese translation.</p>
+            <p class="item-next"><b>Next</b>Confirm translation arrangements with Andreia.</p>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="stage" aria-labelledby="stage-2">
+        <div class="stage-head">
+          <span class="stage-num">Stage 2</span>
+          <h3 class="stage-title" id="stage-2">Legal submission &amp; payment</h3>
+          <span class="stage-progress">3 complete</span>
+        </div>
+        <div class="items">
+
+          <article class="item">
+            <h4 class="item-title">Filing handled by lawyer</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Andreia is the lawyer of record and is handling the online filing and portal follow-up.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Online application submitted</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Andreia confirmed the application was submitted on the night of 13 May 2026.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Government fee payment</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">Payment confirmation came through after an initial delay; Andreia confirmed it has been received successfully. Proof of payment is retained.</p>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="stage" aria-labelledby="stage-3">
+        <div class="stage-head">
+          <span class="stage-num">Stage 3</span>
+          <h3 class="stage-title" id="stage-3">Criminal record &amp; apostille follow-up</h3>
+          <span class="stage-progress">1 complete &middot; 1 in progress</span>
+        </div>
+        <div class="items">
+
+          <article class="item">
+            <h4 class="item-title">UAE police clearance</h4>
+            <span class="tag t-complete"><span class="dot"></span>Complete</span>
+            <p class="item-detail">MOI clearance was forwarded, followed by the MOFA-verified version. Treated as complete unless Andreia flags an issue.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">US FBI background check &amp; federal apostille</h4>
+            <span class="tag t-progress"><span class="dot"></span>In progress</span>
+            <p class="item-detail">Single workstream covering Certifix fingerprinting, the FBI background check, and the federal apostille via the introduced US partner (RMB).</p>
+            <p class="item-next"><b>Next</b>Complete Certifix fingerprinting, place the FBI EDO order and keep the receipt, send the fingerprint card and receipt to RMB, then forward the FBI result for apostille.</p>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="stage" aria-labelledby="stage-4">
+        <div class="stage-head">
+          <span class="stage-num">Stage 4</span>
+          <h3 class="stage-title" id="stage-4">Later follow-up &amp; monitoring</h3>
+          <span class="stage-progress">Andreia leads from here</span>
+        </div>
+        <div class="items">
+
+          <article class="item">
+            <h4 class="item-title">Five-year residence timing</h4>
+            <span class="tag t-context"><span class="dot"></span>Legal context</span>
+            <p class="item-detail">A point Andreia has flagged: whether the five years of residence must be complete at the time of online submission or can mature during the review period. This is a legal question Andreia is managing, not an open action item on this side.</p>
+          </article>
+
+          <article class="item">
+            <h4 class="item-title">Portal / process number</h4>
+            <span class="tag t-context"><span class="dot"></span>Legal context</span>
+            <p class="item-detail">Andreia owns the portal and the process number as the lawyer of record. No action needed unless she asks for something.</p>
+          </article>
+
+        </div>
+      </section>
+
+      <div class="legend" aria-label="Status legend">
+        <span class="li"><span class="sw" style="background: var(--complete)"></span>Complete</span>
+        <span class="li"><span class="sw" style="background: var(--progress)"></span>In progress</span>
+        <span class="li"><span class="sw" style="background: var(--pending)"></span>Pending</span>
+        <span class="li"><span class="sw" style="background: var(--context)"></span>Legal context &mdash; managed by Andreia</span>
+      </div>
+
+      <p class="footer-note">This dashboard is a shared status overview for the family. It does not constitute legal advice.</p>
+
+    </div>
+  </main>
+</body>
+</html>
